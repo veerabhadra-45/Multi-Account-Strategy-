@@ -305,8 +305,3 @@ selenium==4.15.0
 
 ## 📄 License
 
-This project is for educational purposes only. Use at your own risk. Always comply with applicable trading regulations and seek professional financial advice.
-
----
-
-**Disclaimer**: This system involves real money trading. The developers are not responsible for any financial losses. Always understand the risks and use proper risk management strategies.

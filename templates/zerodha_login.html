@@ -1,0 +1,45 @@
+{% extends "strategy_base.html" %}
+
+{% block title %}Complete Zerodha Login{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Complete Zerodha Account Setup</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>Step 1: Login to Zerodha</h5>
+                        <p>Click the link below to login to your Zerodha account:</p>
+                        <a href="{{ login_url }}" target="_blank" class="btn btn-primary">Login to Zerodha</a>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h5>Step 2: Get Request Token</h5>
+                        <p>After logging in, you'll be redirected to a URL that contains a <code>request_token</code> parameter.</p>
+                        <p>Copy the request token from the URL and paste it below.</p>
+                        <p><strong>Example:</strong> If redirected to <code>http://127.0.0.1/?request_token=ABC123&action=login&status=success</code></p>
+                        <p>Copy <code>ABC123</code> as your request token.</p>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('complete_account_setup') }}">
+                        <div class="mb-3">
+                            <label for="request_token" class="form-label">Request Token *</label>
+                            <input type="text" class="form-control" id="request_token" name="request_token" required>
+                            <small class="form-text text-muted">Paste the request token from the redirect URL</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-success">Complete Setup</button>
+                            <a href="{{ url_for('accounts') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

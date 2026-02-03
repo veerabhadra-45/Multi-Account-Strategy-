@@ -1,0 +1,94 @@
+{% extends "strategy_base.html" %}
+
+{% block title %}Add Account - Multi-Account Strategy Trading{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add Account</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('accounts') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Accounts
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="broker" class="form-label">Broker</label>
+                        <select class="form-select" id="broker" name="broker" required>
+                            <option value="ZERODHA">Zerodha</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="api_key" class="form-label">API Key</label>
+                        <input type="text" class="form-control" id="api_key" name="api_key" required>
+                        <div class="form-text">Your Zerodha API Key from Kite Connect</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="access_token" class="form-label">Access Token (Optional)</label>
+                        <input type="text" class="form-control" id="access_token" name="access_token">
+                        <div class="form-text">Leave empty if not available - will be generated during authentication</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="capital" class="form-label">Capital (₹)</label>
+                        <input type="number" class="form-control" id="capital" name="capital" step="0.01" min="0" required>
+                        <div class="form-text">Total capital allocated to this account</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="max_daily_loss" class="form-label">Max Daily Loss (₹)</label>
+                        <input type="number" class="form-control" id="max_daily_loss" name="max_daily_loss" step="0.01" min="0" required>
+                        <div class="form-text">Maximum loss allowed per day for risk management</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('accounts') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle"></i> Account Setup Guide</h6>
+            </div>
+            <div class="card-body">
+                <ol class="small">
+                    <li>Visit <a href="https://kite.trade/connect/login" target="_blank">Kite Connect</a></li>
+                    <li>Create a new app to get API credentials</li>
+                    <li>Copy your API Key and paste it above</li>
+                    <li>Set appropriate capital and risk limits</li>
+                    <li>Access token will be generated during first login</li>
+                </ol>
+                
+                <div class="alert alert-warning mt-3">
+                    <small>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Warning:</strong> This system uses real money. Always test with small amounts first.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

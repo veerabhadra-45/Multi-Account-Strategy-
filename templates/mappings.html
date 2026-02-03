@@ -1,0 +1,125 @@
+{% extends "strategy_base.html" %}
+
+{% block title %}Mappings - Multi-Account Strategy Trading{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Account-Strategy Mappings</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('add_mapping') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Mapping
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                {% if mappings %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Account</th>
+                                    <th>Strategy</th>
+                                    <th>Capital Allocation</th>
+                                    <th>Max Risk/Trade</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mapping in mappings %}
+                                <tr>
+                                    <td>{{ mapping.id }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ mapping.account_name or 'Unknown' }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ mapping.strategy_name }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ mapping.capital_allocation_percent }}%</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">{{ mapping.max_risk_per_trade }}%</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if mapping.is_enabled else 'secondary' }}">
+                                            {{ 'Enabled' if mapping.is_enabled else 'Disabled' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('delete_mapping', mapping_id=mapping.id) }}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Are you sure you want to delete this mapping?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-link fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No mappings found</h5>
+                        <p class="text-muted">Link accounts to strategies to start automated trading.</p>
+                        {% if accounts and strategies %}
+                            <a href="{{ url_for('add_mapping') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Mapping
+                            </a>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                You need at least one account and one strategy to create mappings.
+                                <br>
+                                <a href="{{ url_for('accounts') }}" class="btn btn-sm btn-outline-primary mt-2">Add Account</a>
+                                <a href="{{ url_for('strategies') }}" class="btn btn-sm btn-outline-success mt-2">Add Strategy</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if mappings %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-pie"></i> Capital Allocation Overview</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for account in accounts %}
+                    <div class="col-md-6 mb-3">
+                        <h6>{{ account.account_name or account.api_key[:10] + '...' }} (₹{{ "{:,.0f}".format(account.capital) }})</h6>
+                        {% set account_mappings = mappings|selectattr('account_id', 'equalto', account.id)|list %}
+                        {% if account_mappings %}
+                            {% for mapping in account_mappings %}
+                            <div class="progress mb-1" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ mapping.capital_allocation_percent }}%"
+                                     aria-valuenow="{{ mapping.capital_allocation_percent }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {{ mapping.strategy_name }} ({{ mapping.capital_allocation_percent }}%)
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted small">No strategies mapped</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

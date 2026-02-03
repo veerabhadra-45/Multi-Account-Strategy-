@@ -1,0 +1,201 @@
+{% extends "strategy_base.html" %}
+
+{% block title %}Positions - Multi-Account Strategy Trading{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Positions</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button class="btn btn-outline-secondary" onclick="location.reload()">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+    </div>
+</div>
+
+{% if positions %}
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ positions|length }}</h4>
+                        <p class="card-text">Total Positions</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-briefcase fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ positions|selectattr('qty', 'greaterthan', 0)|list|length }}</h4>
+                        <p class="card-text">Long Positions</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-arrow-up fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ positions|selectattr('qty', 'lessthan', 0)|list|length }}</h4>
+                        <p class="card-text">Short Positions</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-arrow-down fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>₹{{ "{:,.0f}".format(positions|sum(attribute='pnl')) }}</h4>
+                        <p class="card-text">Total P&L</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Positions Table -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Account</th>
+                                <th>Strategy</th>
+                                <th>Symbol</th>
+                                <th>Quantity</th>
+                                <th>Entry Price</th>
+                                <th>P&L</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for position in positions %}
+                            <tr>
+                                <td>{{ position.id }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ position.account_name[:10] }}...</span>
+                                </td>
+                                <td>
+                                    <strong>{{ position.strategy_name }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ position.symbol }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if position.qty > 0 else 'danger' }}">
+                                        {{ position.qty }}
+                                        <i class="fas fa-arrow-{{ 'up' if position.qty > 0 else 'down' }}"></i>
+                                    </span>
+                                </td>
+                                <td>₹{{ "%.2f"|format(position.entry_price) }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if position.pnl >= 0 else 'danger' }}">
+                                        ₹{{ "%.2f"|format(position.pnl) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ position.created_at }}</small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Position Analysis -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-bar"></i> By Strategy</h6>
+            </div>
+            <div class="card-body">
+                {% set strategy_groups = positions|groupby('strategy_name') %}
+                {% for strategy_name, strategy_positions in strategy_groups %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ strategy_name }}</span>
+                    <div>
+                        <span class="badge bg-primary">{{ strategy_positions|list|length }}</span>
+                        <span class="badge bg-{{ 'success' if strategy_positions|sum(attribute='pnl') >= 0 else 'danger' }}">
+                            ₹{{ "{:,.0f}".format(strategy_positions|sum(attribute='pnl')) }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-user-circle"></i> By Account</h6>
+            </div>
+            <div class="card-body">
+                {% set account_groups = positions|groupby('account_name') %}
+                {% for account_name, account_positions in account_groups %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ account_name[:10] }}...</span>
+                    <div>
+                        <span class="badge bg-primary">{{ account_positions|list|length }}</span>
+                        <span class="badge bg-{{ 'success' if account_positions|sum(attribute='pnl') >= 0 else 'danger' }}">
+                            ₹{{ "{:,.0f}".format(account_positions|sum(attribute='pnl')) }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center py-5">
+                    <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No positions found</h5>
+                    <p class="text-muted">Positions will appear here when strategies start generating trades.</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

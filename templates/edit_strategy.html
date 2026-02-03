@@ -1,0 +1,74 @@
+{% extends "strategy_base.html" %}
+
+{% block title %}Edit Strategy - Multi-Account Strategy Trading{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Edit Strategy</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('strategies') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Strategies
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Strategy Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ strategy.name }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="timeframe" class="form-label">Timeframe</label>
+                        <select class="form-select" id="timeframe" name="timeframe" required>
+                            <option value="1m" {{ 'selected' if strategy.timeframe == '1m' else '' }}>1 Minute</option>
+                            <option value="5m" {{ 'selected' if strategy.timeframe == '5m' else '' }}>5 Minutes</option>
+                            <option value="15m" {{ 'selected' if strategy.timeframe == '15m' else '' }}>15 Minutes</option>
+                            <option value="1h" {{ 'selected' if strategy.timeframe == '1h' else '' }}>1 Hour</option>
+                            <option value="1d" {{ 'selected' if strategy.timeframe == '1d' else '' }}>1 Day</option>
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="buy_threshold" class="form-label">Buy Threshold (₹)</label>
+                                <input type="number" class="form-control" id="buy_threshold" name="buy_threshold" 
+                                       step="0.01" min="0" value="{{ params.buy_threshold or 0 }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="sell_threshold" class="form-label">Sell Threshold (₹)</label>
+                                <input type="number" class="form-control" id="sell_threshold" name="sell_threshold" 
+                                       step="0.01" min="0" value="{{ params.sell_threshold or 0 }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                   {{ 'checked' if strategy.is_active else '' }}>
+                            <label class="form-check-label" for="is_active">
+                                Active Strategy
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('strategies') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Strategy
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

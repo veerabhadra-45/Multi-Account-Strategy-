@@ -1,0 +1,175 @@
+{% extends "strategy_base.html" %}
+
+{% block title %}Dashboard - Multi-Account Strategy Trading{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        {% if engines_running %}
+            <a href="{{ url_for('stop_engines') }}" class="btn btn-danger">
+                <i class="fas fa-stop"></i> Stop Engines
+            </a>
+        {% else %}
+            <a href="{{ url_for('start_engines') }}" class="btn btn-success">
+                <i class="fas fa-play"></i> Start Engines
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- System Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ accounts|length }}</h4>
+                        <p class="card-text">Total Accounts</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ strategies|selectattr('is_active')|list|length }}</h4>
+                        <p class="card-text">Active Strategies</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ mappings|length }}</h4>
+                        <p class="card-text">Active Mappings</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-link fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ positions|length }}</h4>
+                        <p class="card-text">Open Positions</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-briefcase fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Positions -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Positions</h5>
+            </div>
+            <div class="card-body">
+                {% if positions %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Account</th>
+                                    <th>Strategy</th>
+                                    <th>Symbol</th>
+                                    <th>Quantity</th>
+                                    <th>Entry Price</th>
+                                    <th>P&L</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for position in positions[:10] %}
+                                <tr>
+                                    <td>{{ position.account_name }}</td>
+                                    <td>{{ position.strategy_name }}</td>
+                                    <td>{{ position.symbol }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if position.qty > 0 else 'danger' }}">
+                                            {{ position.qty }}
+                                        </span>
+                                    </td>
+                                    <td>₹{{ "%.2f"|format(position.entry_price) }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if position.pnl >= 0 else 'danger' }}">
+                                            ₹{{ "%.2f"|format(position.pnl) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ position.created_at }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No positions found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Status -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Account Status</h5>
+            </div>
+            <div class="card-body">
+                {% for account in accounts %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ account.api_key[:10] }}...</span>
+                    <span class="badge bg-{{ 'success' if account.status == 'ACTIVE' else 'secondary' }}">
+                        {{ account.status }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Strategy Status</h5>
+            </div>
+            <div class="card-body">
+                {% for strategy in strategies %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ strategy.name }}</span>
+                    <span class="badge bg-{{ 'success' if strategy.is_active else 'secondary' }}">
+                        {{ 'Active' if strategy.is_active else 'Inactive' }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
